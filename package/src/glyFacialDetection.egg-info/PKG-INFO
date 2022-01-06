@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: glyFacialDetection
+Version: 0.0.12
+Summary: A library that provides functions to detect tilted faces with higher accuracy than the standard one found in opencv
+Home-page: https://github.com/pypa/sampleproject
+Author: Duong Hoang Vu
+Author-email: duongvh1806@gmail.com
+License: UNKNOWN
+Project-URL: FacialDetectionForServer, https://github.com/Glyochi/FacialDetectionForServer
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+UNKNOWN
+

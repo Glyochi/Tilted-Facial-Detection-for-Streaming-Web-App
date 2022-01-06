@@ -1,0 +1,1 @@
+A library that provides functions that can help detect tilted faces with higher accuracy than the standard one found in opencv
