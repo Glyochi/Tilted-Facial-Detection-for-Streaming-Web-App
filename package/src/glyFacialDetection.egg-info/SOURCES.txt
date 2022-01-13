@@ -4,11 +4,13 @@ README.txt
 pyproject.toml
 setup.cfg
 src/glyFacialDetection/DetectedArea.py
+src/glyFacialDetection/FrameThread.py
+src/glyFacialDetection/GlyLibrary.py
 src/glyFacialDetection/HelperFunctions.py
 src/glyFacialDetection/ImageManager.py
 src/glyFacialDetection/Point.py
+src/glyFacialDetection/ServerVideoManager.py
 src/glyFacialDetection/VideoManager.py
-src/glyFacialDetection/VideoManagerForServer.py
 src/glyFacialDetection/__init__.py
 src/glyFacialDetection/helperFunctions.py
 src/glyFacialDetection.egg-info/PKG-INFO

@@ -3,17 +3,20 @@ from .FrameThread import FrameThread
 import time
 
 class ServerVideoManager:
-    def __init__(self, frameRate, socket):
+    def __init__(self, frameRate, socket, clientID, grayScale):
+        self.testingGrayScale = grayScale
+
         # Used for the emitting thread
         self.playing = True
         self.frameRate = frameRate
 
-        self.frameThreads = [None, None, None, None, None]
-        self.freeThreadIDs = [0, 1, 2, 3, 4]
+        self.frameThreads = [None, None, None, None, None, None, None, None, None, None]
+        self.freeThreadIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.threadCount = 10
         self.returnedFrameID = 0
-        self.receivedFrameID = 0
         
         self.socket = socket
+        self.clientID = clientID
 
         self.emittingThread = None
         self.frameLock = Lock()
@@ -29,7 +32,7 @@ class ServerVideoManager:
 
 
 
-    def processNextFrame(self, customFunction, frame, endPoint):
+    def processNextFrame(self, customFunction, frame, frameID, endPoint):
         # Its pretty impossible to have all 5 threads taken up
         if not len(self.freeThreadIDs):
             print('*****************************************************************************************')
@@ -39,10 +42,9 @@ class ServerVideoManager:
 
         threadID = self.freeThreadIDs.pop(0)
 
-        self.frameThreads[threadID] = FrameThread(threadID, self.receivedFrameID, customFunction, frame, self.frameLock, endPoint)
+        self.frameThreads[threadID] = FrameThread(threadID, frameID, customFunction, frame, self.frameLock, endPoint)
         self.frameThreads[threadID].start()
         
-        self.receivedFrameID += 1
     
     
 
@@ -51,8 +53,7 @@ class ServerVideoManager:
 def emitter(videoManager):
     
     while videoManager.playing: 
-        # print("DEBUG FREE THREADS COUNT    " , len(videoManager.freeThreadIDs))
-        if len(videoManager.freeThreadIDs) < 5:
+        if len(videoManager.freeThreadIDs) < videoManager.threadCount:
             
 
             i = 0
@@ -64,10 +65,8 @@ def emitter(videoManager):
             videoManager.frameLock.acquire()
             
             while i < len(frameThreads):
-                
 
                 # If thread t has finished running
-                # if not frameThreads[i].is_alive():
                 
                 if frameThreads[i] != None and not frameThreads[i].is_alive():
                     # add the finished thread id onto the freeThreadIDs attribute of the videoManager
@@ -100,10 +99,11 @@ def emitter(videoManager):
 
                 # if the latest frame that just got rendered by frameThread is newer than the last frame that we sent back to the client
                 # then send that latest frame to the client
-                if latestFrameID > videoManager.returnedFrameID:
+                if latestFrameID > videoManager.returnedFrameID: 
                     temp = frameThreads[finishedThreadIDs[latestFrameIDIndex]]
                     videoManager.returnedFrameID = latestFrameID
-                    videoManager.socket.emit(temp.endPoint, temp.frame)
+                    data = {'base64_responseFrame': temp.frame, 'frameID': temp.frameID}
+                    videoManager.socket.emit(temp.endPoint, data, to=videoManager.clientID)
 
                 # if the latest frame is behind the last frame that was sent to the client, then do nothing
                 

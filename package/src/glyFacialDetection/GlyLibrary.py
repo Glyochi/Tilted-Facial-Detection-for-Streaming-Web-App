@@ -16,9 +16,10 @@ def findAndDrawFacesVanilla(frame):
     Create a grayscaled version of the image, find the faces, and draw them on the original image
     All using vanilla facial detection that came with opencv
     """
-    package_directory = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(package_directory, "classifier\haarcascade_frontalface_default.xml")
-    
+    package_directory = os.path.dirname(__file__)
+    path = os.path.join(package_directory, "classifier\haarcascade_frontalface_default.xml")\
+
+    print(path +" ------------------------------------------------------------")
     haar_cascasde_face = cv.CascadeClassifier(path)
 
 
@@ -26,7 +27,7 @@ def findAndDrawFacesVanilla(frame):
     grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     faces = haar_cascasde_face.detectMultiScale(
-        grayFrame, 2, 6, minSize=(30, 30))
+        grayFrame, 1.1, 10, minSize=(120, 120))
 
     for (x, y, w, h) in faces:
         cv.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 0), 2)
