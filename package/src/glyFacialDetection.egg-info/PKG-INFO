@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: glyFacialDetection
-Version: 0.0.13
+Version: 0.0.18
 Summary: A library that provides functions to detect tilted faces with higher accuracy than the standard one found in opencv
 Home-page: https://github.com/pypa/sampleproject
 Author: Duong Hoang Vu

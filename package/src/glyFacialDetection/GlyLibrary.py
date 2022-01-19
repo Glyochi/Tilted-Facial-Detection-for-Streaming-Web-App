@@ -11,15 +11,14 @@ import os
 
 
 
-def findAndDrawFacesVanilla(frame):
+def findAndDrawFacesVanilla(frame, path):
     """
     Create a grayscaled version of the image, find the faces, and draw them on the original image
     All using vanilla facial detection that came with opencv
     """
-    package_directory = os.path.dirname(__file__)
-    path = os.path.join(package_directory, "classifier\haarcascade_frontalface_default.xml")\
-
-    print(path +" ------------------------------------------------------------")
+    # package_directory = os.path.dirname(os.path.abspath(__file__))
+    # path = os.path.join(package_directory, "classifier\haarcascade_frontalface_default.xml")
+    
     haar_cascasde_face = cv.CascadeClassifier(path)
 
 

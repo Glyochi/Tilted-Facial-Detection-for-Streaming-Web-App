@@ -1,9 +1,9 @@
 
 import cv2 as cv
-from . import Point
-from . import DetectedArea
-from .DetectedArea import DetectedFace
-from .HelperFunctions import *
+from Point import Point
+from DetectedArea import DetectedArea
+from DetectedArea import DetectedFace
+from helperFunctions import *
 import numpy as np
 
 

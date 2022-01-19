@@ -1,4 +1,4 @@
-from . import Point
+from Point import Point
 import cv2 as cv
 
 """

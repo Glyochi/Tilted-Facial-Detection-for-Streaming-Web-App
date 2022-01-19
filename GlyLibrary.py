@@ -1,10 +1,10 @@
 import cv2 as cv
 from numpy import append
-from . import DetectedArea
+from DetectedArea import DetectedArea
 # from .DetectedArea import DetectedFace
-from . import ImageManager
-from . import Point
-from .HelperFunctions import *
+from ImageManager import ImageManager
+from Point import Point
+# from helperFunctionse import *
 import os
 
 

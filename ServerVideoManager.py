@@ -1,5 +1,5 @@
 from threading import Thread, Lock
-from .FrameThread import FrameThread
+from FrameThread import FrameThread
 import time
 
 class ServerVideoManager:
