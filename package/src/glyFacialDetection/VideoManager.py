@@ -1,9 +1,9 @@
 import cv2 as cv
 from numpy import append
-from . import DetectedArea
+from .DetectedArea import DetectedArea
 from .DetectedArea import DetectedFace
-from . import ImageManager
-from . import Point
+from .ImageManager import ImageManager
+from .Point import Point
 from .HelperFunctions import *
 import time
 import threading
@@ -466,6 +466,9 @@ class VideoManager:
                             for newFace in delayDetectedFaces:
                                 currentDetectedFacesManager.append(
                                     [newFace, 0])
+                    else:
+                        # ?????????????????????????????????????????????????????????????
+                        shadowDetectedFaces = [] 
 
                     # Run the next macro facial detection (my implementation) in a seperate thread to avoid interfering with updating new frames
                     frameMgnr = ImageManager(min500frame)

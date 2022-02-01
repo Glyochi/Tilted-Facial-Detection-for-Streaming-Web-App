@@ -3,8 +3,8 @@ from .FrameThread import FrameThread
 import time
 
 class ServerVideoManager:
-    def __init__(self, frameRate, socket, clientID, grayScale):
-        self.testingGrayScale = grayScale
+    def __init__(self, frameRate, socket, clientID, coordinates):
+        self.coordinates = coordinates
 
         # Used for the emitting thread
         self.playing = True
@@ -18,6 +18,9 @@ class ServerVideoManager:
         self.socket = socket
         self.clientID = clientID
 
+        # If no new frames for 3 seconds, stop the background thread. * 6 is because background interval = 1/(6*frameRate) when no thread running
+        self.maxTimeOut = frameRate * 3 * 6 
+        self.timeOutCount = 0
         self.emittingThread = None
         self.frameLock = Lock()
 
@@ -28,21 +31,20 @@ class ServerVideoManager:
         self.emittingThread.start()
         
     def stop(self):
-        self.playing = False
+        if self.playing:
+            self.playing = False
 
 
 
     def processNextFrame(self, customFunction, frame, frameID, endPoint):
         # Its pretty impossible to have all 5 threads taken up
         if not len(self.freeThreadIDs):
-            print('*****************************************************************************************')
-            print('*  ERROR: in VideoManager file: No more free threads. Sir can I have sum more threads?  *')
-            print('*****************************************************************************************')
+            print('*****************************************************************************************\n*  ERROR: in VideoManager file: No more free threads. Sir can I have sum more threads?  *\n*****************************************************************************************\n')
             return
 
         threadID = self.freeThreadIDs.pop(0)
 
-        self.frameThreads[threadID] = FrameThread(threadID, frameID, customFunction, frame, self.frameLock, endPoint)
+        self.frameThreads[threadID] = FrameThread(threadID, frameID, customFunction, frame, endPoint)
         self.frameThreads[threadID].start()
         
     
@@ -54,7 +56,8 @@ def emitter(videoManager):
     
     while videoManager.playing: 
         if len(videoManager.freeThreadIDs) < videoManager.threadCount:
-            
+            # Reset time out count
+            # videoManager.timeOutCount = 0
 
             i = 0
             frameThreads = videoManager.frameThreads
@@ -102,8 +105,13 @@ def emitter(videoManager):
                 if latestFrameID > videoManager.returnedFrameID: 
                     temp = frameThreads[finishedThreadIDs[latestFrameIDIndex]]
                     videoManager.returnedFrameID = latestFrameID
-                    data = {'base64_responseFrame': temp.frame, 'frameID': temp.frameID}
-                    videoManager.socket.emit(temp.endPoint, data, to=videoManager.clientID)
+
+                    if videoManager.coordinates:
+                        data = {'faceCoordinates': temp.output, 'frameID': temp.frameID}
+                        videoManager.socket.emit(temp.endPoint, data, to=videoManager.clientID)
+                    else:
+                        data = {'base64_responseFrame': temp.output, 'frameID': temp.frameID}
+                        videoManager.socket.emit(temp.endPoint, data, to=videoManager.clientID)
 
                 # if the latest frame is behind the last frame that was sent to the client, then do nothing
                 
@@ -116,6 +124,9 @@ def emitter(videoManager):
             time.sleep(1/(3*videoManager.frameRate))
         else:
             time.sleep(1/(6 * videoManager.frameRate))
+            # videoManager.timeOutCount += 1
+            # if videoManager.timeOutCount == videoManager.maxTimeOut:
+            #     videoManager.stop()
                 
 
 

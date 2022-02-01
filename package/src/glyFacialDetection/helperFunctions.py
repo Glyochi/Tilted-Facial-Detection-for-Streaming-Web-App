@@ -1,13 +1,16 @@
 import math
 import cv2 as cv
 import numpy as np
+import os
 
-haar_cascasde_eye = cv.CascadeClassifier("classifier/haarcascade_eye.xml")
-haar_cascasde_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
+package_directory = os.path.dirname(os.path.abspath(__file__))
+eye_path = os.path.join(package_directory, "classifier/haarcascade_eye.xml")
+face_path = os.path.join(package_directory, "classifier/haarcascade_frontalface_default.xml")
+haar_cascasde_eye = cv.CascadeClassifier(eye_path)
 # Default frontal face xml => more accurate but slower
-# haar_cascasde_face = cv.CascadeClassifier("classifier/haarcascade_frontalface_default.xml")
+haar_cascasde_face = cv.CascadeClassifier(face_path)
 # Lighter frontal face xml => less accurate (accurate enuf) but faster
-haar_cascasde_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
+# haar_cascasde_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
 
 
 # Haarcascade basic detection
@@ -17,28 +20,35 @@ def haarcascade_FacialDetection(image, scaleFactor, minNeighbors, minSize = None
     Just run the haarcascade facial detection on the image without modifying the input image
         :return the detectMultiScale output
     """
-    if minSize == None:
+    
+    try:
+        if minSize == None:
+            if maxSize == None:
+                return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors)
+            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
         if maxSize == None:
-            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors)
-        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
-    if maxSize == None:
-        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
-    return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
-
+            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
+        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
+    except cv.error as e:
+        # OpenCV sometimes weird, so in those cases where errors were thrown just catch them and return an empty array
+        return []
 
 def haarcascade_EyeDetection(image, scaleFactor, minNeighbors, minSize = None, maxSize = None):
     """
     Just run the haarcascade eye detection on the image without modifying the input image
         :return the detectMultiScale output
     """
-    if minSize == None:
+    try:
+        if minSize == None:
+            if maxSize == None:
+                return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors)
+            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
         if maxSize == None:
-            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors)
-        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
-    if maxSize == None:
-        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
-    return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
-    
+            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
+        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
+    except cv.error as e:
+        # OpenCV sometimes weird, so in those cases where errors were thrown just catch them and return an empty array
+        return []    
 
 
 # Rotation

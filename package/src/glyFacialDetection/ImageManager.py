@@ -1,10 +1,12 @@
 
+from email.quoprimime import unquote
 import cv2 as cv
-from . import Point
-from . import DetectedArea
+from .Point import Point
+from .DetectedArea import DetectedArea
 from .DetectedArea import DetectedFace
 from .HelperFunctions import *
 import numpy as np
+import os
 
 
 """ 
@@ -26,22 +28,26 @@ import numpy as np
 
 """
 
+package_directory = os.path.dirname(os.path.abspath(__file__))
+eye_path = os.path.join(package_directory, "classifier/haarcascade_eye.xml")
+face_path = os.path.join(package_directory, "classifier/haarcascade_frontalface_default.xml")
 
 class ImageManager:
     """
     A manager that stores the actual image and can do image processing function on it. This object will be used to take care of facial detection.
     """
-    haarcascade_eye = cv.CascadeClassifier("classifier/haarcascade_eye.xml")
-    haarcascade_face = cv.CascadeClassifier("classifier/haarcascade_frontalface_default.xml")
+    
+    haarcascade_eye = cv.CascadeClassifier(eye_path)
+    haarcascade_face = cv.CascadeClassifier(face_path)
     # haarcascade_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
-    haarcascade_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
-    HARDCODED_similarSizeScale = 0.7
+    # haarcascade_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
+    HARDCODED_similarSizeScale = 0.5
     HARDCODED_pairOfEyesDistanceRange = (1.5, 3.5)
     # eye and face min and max dimensions in a 500pixel x ? pixel images
     HARDCODED_eyeMinDimensions = (10, 10)
-    HARDCODED_eyeMaxDimensions = (200, 200)
-    HARDCODED_faceMinDimensions = (80, 80)
-    HARDCODED_faceMaxDimensions = (500, 500)
+    HARDCODED_eyeMaxDimensions = (120, 120)
+    HARDCODED_faceMinDimensions = (60, 60)
+    HARDCODED_faceMaxDimensions = (300, 300)
 
     def __init__(self, img):
         """
@@ -75,7 +81,10 @@ class ImageManager:
         rotatedGrayImage = rotateCounterClockwise(self.grayImage, angle)
             
         # Collecting raw detected objects received from detectMultiScale
-        rawObjs = detector.detectMultiScale(rotatedGrayImage, scaleFactor = scaleFactor, minNeighbors = minNeighbors, minSize = minDimensions, maxSize = maxDimensions)
+        try:
+            rawObjs = detector.detectMultiScale(rotatedGrayImage, scaleFactor = scaleFactor, minNeighbors = minNeighbors, minSize = minDimensions, maxSize = maxDimensions)
+        except cv.error as e:
+            rawObjs = []
             
         detectedAreas = []
         rotatedCenter = Point(rotatedGrayImage.shape[1]/2, rotatedGrayImage.shape[0]/2)
@@ -338,7 +347,10 @@ class ImageManager:
 
 
             # find the face in the cropped Area
-            detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            try:
+                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            except cv.error as e:
+                detectedFaces = []
 
 
             # DEBUGING AREA
@@ -352,7 +364,10 @@ class ImageManager:
             if len(detectedFaces) == 0:
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -374,7 +389,10 @@ class ImageManager:
 
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -474,7 +492,11 @@ class ImageManager:
 
 
             # find the face in the cropped Area
-            detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            try:
+                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            except cv.error as e:
+                detectedFaces = []
+
             boolUpSideDown = False
 
 
@@ -482,7 +504,10 @@ class ImageManager:
             if len(detectedFaces) == 0:
                 # Scan the image upside down
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -504,7 +529,10 @@ class ImageManager:
 
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -555,6 +583,22 @@ class ImageManager:
 
             faces.append(biggestFace)
 
+        # Removing overlapping faces
+        uniqueFaces = []
+
+        for i in range(len(faces) - 1):
+            for j in range(i,len(faces)):
+                if faces[i].similarSize(faces[j], self.HARDCODED_similarSizeScale) and faces[i].overlap(faces[j]):
+                    radiusOne = faces[i].center.distTo(faces[i].upperLeft)
+                    radiusTwo = faces[j].center.distTo(faces[j].upperLeft)
+                    if radiusOne < radiusTwo:
+                        faces.pop(j)
+                        j -= 1
+                    else:
+                        faces.pop(i)
+                        i -= 2
+                        j -= 1
+                        break
         return faces
 
 
@@ -578,6 +622,39 @@ class ImageManager:
             :return an array of faces as detectedFace objects
         """
         return self.findFacesUsingPairOfEyes(self.findPairsOfEyesCounterClockwiseMultipleAngles(angles, scaleFactor, minNeighbors), scaleFactor, minNeighbors)
+
+    
+
+    def findFacesCounterClockwiseMultipleAngles_Alternative(self, angles, scaleFactor, minNeighbors):
+        """
+        Find faces in the image and return them as detectedArea objects in an array
+        This method, unlike the other one, just going to scan for faces in multiple angles instead of eyes. Then merge them together. Scanning for eyes is only for finding the faces' rotations
+            :param angles: counter clockwise angles by which the image is rotated
+            :param scaleFactor: paramter for detectMultiScale
+            :param minNeighbors: parameter for detectMultiScale
+            :return an array of faces as detectedFace objects
+        """     
+
+        
+        detectedFaces = []
+
+        for angle in angles:
+            (detectedAreas, rotatedCenter) = self.HELPER_runHaarDetectionCounterClockwiseAngle(self.haarcascade_face, self.HARDCODED_faceMinDimensions, self.HARDCODED_faceMaxDimensions, angle, scaleFactor, minNeighbors)
+            
+            for area in detectedAreas:
+                face = DetectedFace((area.upperLeft.x, area.upperLeft.y), area.dimensions, angle)
+                face.rotateAreaClockwise(rotatedCenter, angle)
+
+                unique = True
+                for detectedFace in detectedFaces:
+                    if face.similarSize(detectedFace, self.HARDCODED_similarSizeScale) and face.overlap(detectedFace):
+                        unique = False
+                        break
+                
+                if unique:
+                    detectedFaces.append(face)
+        
+        return detectedFaces
 
                 
 

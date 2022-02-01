@@ -3,7 +3,7 @@ import cv2 as cv
 import numpy as np
 from numpy.core.fromnumeric import shape
 
-img = cv.imread("human/people.jpg")
+img = cv.imread(r'D:\workspace\git\Python_FacialReg\testingParts\testImages\people_angle.jpg')
 # cv.imshow("OG", img)
 
 # rescale an image/frame
@@ -74,7 +74,7 @@ def rotate(img, angle, rotPoint = None):
 blank = rotate(img,-60)
 for x in range(0, 360, 10):
     blank = rotate(img, x)
-    blank = rescaleFrame(blank, 500)
+    blank = rescaleFrame(blank, 400)
     cv.imshow('Rotated' + str(x) + 'degree', blank)
 
 
